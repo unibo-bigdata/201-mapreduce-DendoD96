@@ -1,4 +1,4 @@
-package exercise4;
+  package exercise4;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -22,7 +22,14 @@ public class Ex4AverageWordLength {
 		private IntWritable wordLength = new IntWritable();
 
 		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			//TODO mapper code
+			StringTokenizer itr = new StringTokenizer(value.toString());
+			while (itr.hasMoreTokens()) {
+				String actualWord = itr.nextToken();
+				firstLetter.set(actualWord.substring(0, 1));
+				word.set(actualWord);
+				wordLength.set(word.getLength());
+				context.write(firstLetter, wordLength);
+			}
 		}
 	}
 
@@ -30,7 +37,12 @@ public class Ex4AverageWordLength {
 
 		public void reduce(Text key, Iterable<IntWritable> values, Context context)
 				throws IOException, InterruptedException {
-			//TODO reducer code
+			double tot = 0, count = 0;
+			for (IntWritable val : values) {
+				tot += val.get();
+				count++;
+			}
+			context.write(key, new DoubleWritable(tot/count));
 		}
 	}
 
